@@ -1,0 +1,28 @@
+{
+    "cli": {
+        "version": ">= 13.2.0"
+    },
+    "build": {
+        "development": {
+            "developmentClient": true,
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_API_URL_DEV": "http://localhost:3000/api"
+            }
+        },
+        "preview": {
+            "distribution": "internal",
+            "env": {
+                "EXPO_PUBLIC_API_URL_PROD": "https://api-staging.ejemplo.com/api"
+            }
+        },
+        "production": {
+            "env": {
+                "EXPO_PUBLIC_API_URL_PROD": "https://api.ejemplo.com/api"
+            }
+        }
+    },
+    "submit": {
+        "production": {}
+    }
+}
