@@ -19,9 +19,9 @@ export const useGitHubAuth = () => {
                 ? `${window.location.origin}/auth/callback`  // Web: https://tu-dominio.com/auth/callback
                 : 'classroomapp://auth/callback';             // Móvil: deep link
 
-            // Enviar el redirect_uri al backend como query parameter
-            // El backend debe usar este redirect_uri para redirigir después de la autenticación
-            const authUrl = `${API_CONFIG.baseURL}/auth/github?redirect_uri=${encodeURIComponent(redirectUrl)}`;
+            // Determinar la plataforma y construir la URL de autenticación
+            const platform = Platform.OS === 'web' ? 'web' : 'mobile';
+            const authUrl = `${API_CONFIG.baseURL}/auth/github?platform=${platform}&redirect_uri=${encodeURIComponent(redirectUrl)}`;
 
             // Abrir el navegador para autenticación con GitHub
             const result = await WebBrowser.openAuthSessionAsync(

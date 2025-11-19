@@ -24,7 +24,7 @@ const isDevelopment = __DEV__;
 export const API_CONFIG = {
     baseURL: isDevelopment
         ? getEnvVar('EXPO_PUBLIC_API_URL_DEV', 'http://localhost:5000/api')
-        : getEnvVar('EXPO_PUBLIC_API_URL_PROD', 'https://api.ejemplo.com/api'),
+        : getEnvVar('EXPO_PUBLIC_API_URL_PROD', 'https://classroom-backend-mu.vercel.app/api'),
 };
 
 
