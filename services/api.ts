@@ -17,6 +17,7 @@ import {
     Material,
 } from '@/types';
 import { API_CONFIG } from '@/config/env';
+import { logError, logInfo, getUserFriendlyError, processApiError } from '@/utils/errorHandler';
 
 // La URL se obtiene del archivo de configuración que lee las variables de entorno
 const API_BASE_URL = API_CONFIG.baseURL;
@@ -55,14 +56,17 @@ class ApiService {
             const data = await response.json();
 
             if (!response.ok) {
-                console.error('❌ API Error Response:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    data,
-                });
+                const serverMessage = data.message || data.error;
+                const errorInfo = processApiError(
+                    new Error(serverMessage),
+                    response.status,
+                    serverMessage,
+                    'API Response'
+                );
+
                 return {
                     success: false,
-                    error: data.message || data.error || `Error ${response.status}: ${response.statusText}`,
+                    error: errorInfo.userMessage,
                 };
             }
 
@@ -74,13 +78,16 @@ class ApiService {
         }
 
         if (!response.ok) {
-            console.error('❌ API Error (non-JSON):', {
-                status: response.status,
-                statusText: response.statusText,
-            });
+            const errorInfo = processApiError(
+                new Error(response.statusText),
+                response.status,
+                undefined,
+                'API Response (non-JSON)'
+            );
+
             return {
                 success: false,
-                error: `Error: ${response.status} ${response.statusText}`,
+                error: errorInfo.userMessage,
             };
         }
 
@@ -98,10 +105,7 @@ class ApiService {
             const headers = await this.getAuthHeader();
             const url = `${this.baseUrl}${endpoint}`;
 
-            // Debug log en desarrollo
-            if (__DEV__) {
-                console.log(`🌐 API Request: ${options.method || 'GET'} ${url}`);
-            }
+            logInfo('API Request', `${options.method || 'GET'} ${url}`);
 
             const response = await fetch(url, {
                 ...options,
@@ -130,10 +134,10 @@ class ApiService {
 
             return this.handleResponse<T>(response);
         } catch (error) {
-            console.error('API Error:', error);
+            const errorInfo = processApiError(error, undefined, undefined, 'API Request');
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Error de conexión',
+                error: errorInfo.userMessage,
             };
         }
     }
@@ -355,9 +359,7 @@ class ApiService {
             const headers = await this.getAuthHeader();
             const url = `${this.baseUrl}/tasks/${taskId}/my-submission`;
 
-            if (__DEV__) {
-                console.log('🌐 API Request: GET', url);
-            }
+            logInfo('API Request', `GET ${url}`);
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -371,9 +373,7 @@ class ApiService {
 
                 // Si es 404 y el mensaje indica que no hay entrega, retornar success con data null
                 if (response.status === 404 && (data.error?.includes('No has entregado') || data.error?.includes('no entregado'))) {
-                    if (__DEV__) {
-                        console.log('ℹ️ No hay entrega para esta tarea (estado esperado)');
-                    }
+                    logInfo('getMySubmission', 'No hay entrega para esta tarea');
                     return {
                         success: true,
                         data: null as any, // null indica que no hay entrega
@@ -382,14 +382,17 @@ class ApiService {
                 }
 
                 if (!response.ok) {
-                    console.error('❌ API Error Response:', {
-                        status: response.status,
-                        statusText: response.statusText,
-                        data,
-                    });
+                    const serverMessage = data.message || data.error;
+                    const errorInfo = processApiError(
+                        new Error(serverMessage),
+                        response.status,
+                        serverMessage,
+                        'getMySubmission'
+                    );
+
                     return {
                         success: false,
-                        error: data.message || data.error || `Error ${response.status}: ${response.statusText}`,
+                        error: errorInfo.userMessage,
                     };
                 }
 
@@ -401,9 +404,16 @@ class ApiService {
             }
 
             if (!response.ok) {
+                const errorInfo = processApiError(
+                    new Error(response.statusText),
+                    response.status,
+                    undefined,
+                    'getMySubmission (non-JSON)'
+                );
+
                 return {
                     success: false,
-                    error: `Error: ${response.status} ${response.statusText}`,
+                    error: errorInfo.userMessage,
                 };
             }
 
@@ -412,10 +422,10 @@ class ApiService {
                 data: {} as Submission,
             };
         } catch (error) {
-            console.error('❌ Error en getMySubmission:', error);
+            const errorInfo = processApiError(error, undefined, undefined, 'getMySubmission');
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Error desconocido',
+                error: errorInfo.userMessage,
             };
         }
     }

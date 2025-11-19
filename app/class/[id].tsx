@@ -40,22 +40,17 @@ export default function ClassDetailScreen() {
 
     const loadClassDetail = async () => {
         try {
-            console.log('🔍 Cargando clase con ID:', id);
             const response = await apiService.getClassById(id);
-            console.log('📦 Respuesta del servidor:', response);
 
             if (response.success && response.data) {
                 setClassDetail(response.data);
-                console.log('✅ Clase cargada:', response.data.name);
             } else {
-                console.error('❌ Error en respuesta:', response.error);
                 setAlertMessage({
                     type: 'error',
                     message: response.error || 'Error al cargar la clase',
                 });
             }
         } catch (error) {
-            console.error('💥 Error de conexión:', error);
             setAlertMessage({
                 type: 'error',
                 message: 'Error de conexión',

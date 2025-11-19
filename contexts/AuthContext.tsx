@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, LoginCredentials, RegisterData, UserRole } from '@/types';
 import apiService from '@/services/api';
+import { logError, logInfo } from '@/utils/errorHandler';
 
 interface AuthContextType {
     user: User | null;
@@ -37,13 +38,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
                 if (response.success && response.data) {
                     setUser(response.data);
+                    logInfo('Auth', 'Usuario autenticado');
                 } else {
                     // Token inválido o expirado
                     await apiService.logout();
                 }
             }
         } catch (error) {
-            console.error('Error checking auth:', error);
+            logError('Auth Check', error);
         } finally {
             setIsLoading(false);
         }

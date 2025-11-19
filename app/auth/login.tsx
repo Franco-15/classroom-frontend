@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -16,53 +16,14 @@ import Input from '@/components/ui/Input';
 import Alert from '@/components/ui/Alert';
 
 export default function LoginScreen() {
-    const { login, loginWithTokens } = useAuth();
-    const { signInWithGitHub, authResult } = useGitHubAuth();
+    const { login } = useAuth();
+    const { signInWithGitHub } = useGitHubAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const [loading, setLoading] = useState(false);
     const [githubLoading, setGithubLoading] = useState(false);
     const [alertMessage, setAlertMessage] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
-
-    // Manejar el resultado de la autenticación con GitHub
-    useEffect(() => {
-        if (authResult) {
-            handleGitHubAuthResult();
-        }
-    }, [authResult]);
-
-    const handleGitHubAuthResult = async () => {
-        if (!authResult) return;
-
-        if (authResult.type === 'success' && authResult.accessToken && authResult.refreshToken) {
-            setGithubLoading(true);
-            try {
-                const result = await loginWithTokens(authResult.accessToken, authResult.refreshToken);
-
-                if (result.success) {
-                    router.replace('/(tabs)');
-                } else {
-                    setAlertMessage({
-                        type: 'error',
-                        message: result.error || 'Error al iniciar sesión con GitHub',
-                    });
-                }
-            } catch (error) {
-                setAlertMessage({
-                    type: 'error',
-                    message: 'Error al procesar la autenticación con GitHub',
-                });
-            } finally {
-                setGithubLoading(false);
-            }
-        } else if (authResult.type === 'error') {
-            setAlertMessage({
-                type: 'error',
-                message: authResult.error || 'Error al autenticar con GitHub',
-            });
-        }
-    };
 
     const validateForm = () => {
         const newErrors: { email?: string; password?: string } = {};
@@ -121,11 +82,16 @@ export default function LoginScreen() {
         try {
             const result = await signInWithGitHub();
 
-            // El resultado se manejará en el useEffect cuando cambie authResult
+            // El callback se manejará automáticamente en /auth/callback
             if (result.type === 'cancel') {
                 setAlertMessage({
                     type: 'error',
                     message: 'Autenticación cancelada',
+                });
+            } else if (result.type === 'error') {
+                setAlertMessage({
+                    type: 'error',
+                    message: result.error || 'Error al iniciar sesión con GitHub',
                 });
             }
         } catch (error) {
