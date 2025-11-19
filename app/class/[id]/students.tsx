@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     RefreshControl,
     Alert as RNAlert,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
@@ -62,42 +63,51 @@ export default function ClassStudentsScreen() {
     };
 
     const handleRemoveStudent = async (studentId: string, studentName: string) => {
-        RNAlert.alert(
-            'Quitar estudiante',
-            `¿Estás seguro de que deseas quitar a ${studentName} de la clase?`,
-            [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Quitar',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            const response = await apiService.removeStudentFromClass(id, studentId);
-                            if (response.success) {
-                                setAlertMessage({
-                                    type: 'success',
-                                    message: 'Estudiante removido de la clase',
-                                });
-                                loadStudents();
-                            } else {
-                                setAlertMessage({
-                                    type: 'error',
-                                    message: response.error || 'Error al remover estudiante',
-                                });
-                            }
-                        } catch (error) {
-                            setAlertMessage({
-                                type: 'error',
-                                message: 'Error de conexión',
-                            });
-                        }
+        const removeAction = async () => {
+            try {
+                const response = await apiService.removeStudentFromClass(id, studentId);
+                if (response.success) {
+                    setAlertMessage({
+                        type: 'success',
+                        message: 'Estudiante removido de la clase',
+                    });
+                    loadStudents();
+                } else {
+                    setAlertMessage({
+                        type: 'error',
+                        message: response.error || 'Error al remover estudiante',
+                    });
+                }
+            } catch (error) {
+                setAlertMessage({
+                    type: 'error',
+                    message: 'Error de conexión',
+                });
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm(`¿Estás seguro de que deseas quitar a ${studentName} de la clase?`);
+            if (confirmed) {
+                await removeAction();
+            }
+        } else {
+            RNAlert.alert(
+                'Quitar estudiante',
+                `¿Estás seguro de que deseas quitar a ${studentName} de la clase?`,
+                [
+                    {
+                        text: 'Cancelar',
+                        style: 'cancel',
                     },
-                },
-            ]
-        );
+                    {
+                        text: 'Quitar',
+                        style: 'destructive',
+                        onPress: removeAction,
+                    },
+                ]
+            );
+        }
     };
 
     if (loading) {

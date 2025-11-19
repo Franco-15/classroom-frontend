@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert as RNAlert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -32,25 +33,35 @@ export default function ProfileScreen() {
     return 'person';
   };
 
-  const handleLogout = () => {
-    RNAlert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro de que quieres cerrar sesión?',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Cerrar sesión',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            router.replace('/auth/login' as any);
+  const handleLogout = async () => {
+    if (Platform.OS === 'web') {
+      // En web, usar window.confirm
+      const confirmed = window.confirm('¿Estás seguro de que quieres cerrar sesión?');
+      if (confirmed) {
+        await logout();
+        router.replace('/auth/login' as any);
+      }
+    } else {
+      // En mobile, usar RNAlert
+      RNAlert.alert(
+        'Cerrar sesión',
+        '¿Estás seguro de que quieres cerrar sesión?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
           },
-        },
-      ]
-    );
+          {
+            text: 'Cerrar sesión',
+            style: 'destructive',
+            onPress: async () => {
+              await logout();
+              router.replace('/auth/login' as any);
+            },
+          },
+        ]
+      );
+    }
   };
 
   return (

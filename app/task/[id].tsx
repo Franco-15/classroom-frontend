@@ -7,6 +7,7 @@ import {
     TextInput,
     TouchableOpacity,
     Alert as RNAlert,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
@@ -143,44 +144,53 @@ export default function TaskDetailScreen() {
             return;
         }
 
-        RNAlert.alert(
-            'Eliminar tarea',
-            '¿Estás seguro de que deseas eliminar esta tarea?',
-            [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Eliminar',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            const response = await apiService.deleteTask(id);
-                            if (response.success) {
-                                setAlertMessage({
-                                    type: 'success',
-                                    message: 'Tarea eliminada exitosamente',
-                                });
-                                setTimeout(() => {
-                                    router.back();
-                                }, 1500);
-                            } else {
-                                setAlertMessage({
-                                    type: 'error',
-                                    message: response.error || 'Error al eliminar la tarea',
-                                });
-                            }
-                        } catch (error) {
-                            setAlertMessage({
-                                type: 'error',
-                                message: 'Error de conexión',
-                            });
-                        }
+        const deleteAction = async () => {
+            try {
+                const response = await apiService.deleteTask(id);
+                if (response.success) {
+                    setAlertMessage({
+                        type: 'success',
+                        message: 'Tarea eliminada exitosamente',
+                    });
+                    setTimeout(() => {
+                        router.back();
+                    }, 1500);
+                } else {
+                    setAlertMessage({
+                        type: 'error',
+                        message: response.error || 'Error al eliminar la tarea',
+                    });
+                }
+            } catch (error) {
+                setAlertMessage({
+                    type: 'error',
+                    message: 'Error de conexión',
+                });
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('¿Estás seguro de que deseas eliminar esta tarea?');
+            if (confirmed) {
+                await deleteAction();
+            }
+        } else {
+            RNAlert.alert(
+                'Eliminar tarea',
+                '¿Estás seguro de que deseas eliminar esta tarea?',
+                [
+                    {
+                        text: 'Cancelar',
+                        style: 'cancel',
                     },
-                },
-            ]
-        );
+                    {
+                        text: 'Eliminar',
+                        style: 'destructive',
+                        onPress: deleteAction,
+                    },
+                ]
+            );
+        }
     };
 
     const getStatusBadge = () => {

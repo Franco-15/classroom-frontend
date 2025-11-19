@@ -8,6 +8,7 @@ import {
     RefreshControl,
     FlatList,
     Alert as RNAlert,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, router, Stack } from 'expo-router';
@@ -88,83 +89,101 @@ export default function ClassDetailScreen() {
     };
 
     const handleDeleteClass = async () => {
-        RNAlert.alert(
-            'Eliminar clase',
-            '¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.',
-            [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Eliminar',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            const response = await apiService.deleteClass(id);
-                            if (response.success) {
-                                setAlertMessage({
-                                    type: 'success',
-                                    message: 'Clase eliminada exitosamente',
-                                });
-                                setTimeout(() => {
-                                    router.back();
-                                }, 1500);
-                            } else {
-                                setAlertMessage({
-                                    type: 'error',
-                                    message: response.error || 'Error al eliminar la clase',
-                                });
-                            }
-                        } catch (error) {
-                            setAlertMessage({
-                                type: 'error',
-                                message: 'Error de conexión',
-                            });
-                        }
+        const deleteAction = async () => {
+            try {
+                const response = await apiService.deleteClass(id);
+                if (response.success) {
+                    setAlertMessage({
+                        type: 'success',
+                        message: 'Clase eliminada exitosamente',
+                    });
+                    setTimeout(() => {
+                        router.back();
+                    }, 1500);
+                } else {
+                    setAlertMessage({
+                        type: 'error',
+                        message: response.error || 'Error al eliminar la clase',
+                    });
+                }
+            } catch (error) {
+                setAlertMessage({
+                    type: 'error',
+                    message: 'Error de conexión',
+                });
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.');
+            if (confirmed) {
+                await deleteAction();
+            }
+        } else {
+            RNAlert.alert(
+                'Eliminar clase',
+                '¿Estás seguro de que deseas eliminar esta clase? Esta acción no se puede deshacer.',
+                [
+                    {
+                        text: 'Cancelar',
+                        style: 'cancel',
                     },
-                },
-            ]
-        );
+                    {
+                        text: 'Eliminar',
+                        style: 'destructive',
+                        onPress: deleteAction,
+                    },
+                ]
+            );
+        }
     };
 
     const handleDeleteAnnouncement = async (announcementId: string) => {
-        RNAlert.alert(
-            'Eliminar anuncio',
-            '¿Estás seguro de que deseas eliminar este anuncio?',
-            [
-                {
-                    text: 'Cancelar',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Eliminar',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            const response = await apiService.deleteAnnouncement(announcementId);
-                            if (response.success) {
-                                setAlertMessage({
-                                    type: 'success',
-                                    message: 'Anuncio eliminado',
-                                });
-                                loadClassDetail();
-                            } else {
-                                setAlertMessage({
-                                    type: 'error',
-                                    message: response.error || 'Error al eliminar el anuncio',
-                                });
-                            }
-                        } catch (error) {
-                            setAlertMessage({
-                                type: 'error',
-                                message: 'Error de conexión',
-                            });
-                        }
+        const deleteAction = async () => {
+            try {
+                const response = await apiService.deleteAnnouncement(announcementId);
+                if (response.success) {
+                    setAlertMessage({
+                        type: 'success',
+                        message: 'Anuncio eliminado',
+                    });
+                    loadClassDetail();
+                } else {
+                    setAlertMessage({
+                        type: 'error',
+                        message: response.error || 'Error al eliminar el anuncio',
+                    });
+                }
+            } catch (error) {
+                setAlertMessage({
+                    type: 'error',
+                    message: 'Error de conexión',
+                });
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm('¿Estás seguro de que deseas eliminar este anuncio?');
+            if (confirmed) {
+                await deleteAction();
+            }
+        } else {
+            RNAlert.alert(
+                'Eliminar anuncio',
+                '¿Estás seguro de que deseas eliminar este anuncio?',
+                [
+                    {
+                        text: 'Cancelar',
+                        style: 'cancel',
                     },
-                },
-            ]
-        );
+                    {
+                        text: 'Eliminar',
+                        style: 'destructive',
+                        onPress: deleteAction,
+                    },
+                ]
+            );
+        }
     }; if (loading) {
         return <Loading message="Cargando clase..." />;
     }
