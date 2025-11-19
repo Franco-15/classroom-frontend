@@ -1,278 +1,128 @@
-# 📚 Classroom MVP - Frontend
+# 📚 Classroom MVP — Frontend (Expo + TypeScript)
 
-Aplicación móvil tipo Google Classroom construida con React Native, Expo y TypeScript.
+Proyecto frontend móvil tipo Google Classroom, implementado con React Native, Expo Router y TypeScript.
 
-## 🚀 Inicio Rápido
+Este README contiene lo esencial para poner el proyecto en marcha localmente, información sobre la estructura del repositorio y enlaces a la documentación interna.
 
-### 1. Instalar dependencias
+## Requisitos
+
+- Node.js 18+ (recomendado)
+- npm o pnpm
+- Expo CLI (opcional: `npm i -g expo-cli`)
+- Emulador iOS/Android o la app Expo Go en dispositivo físico
+
+## Instalación rápida
+
+1. Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### 2. Configurar variables de entorno
+2. Configurar variables de entorno
 
-Crea un archivo `.env` basado en el ejemplo:
+Copia el ejemplo y edita según tu entorno:
 
 ```bash
 cp .env.example .env
 ```
 
-Edita el archivo `.env` con la URL de tu API:
+Variables importantes (ejemplos):
 
 ```env
-# Para desarrollo local
 EXPO_PUBLIC_API_URL_DEV=http://localhost:3000/api
-
-# Para producción
 EXPO_PUBLIC_API_URL_PROD=https://tu-api.com/api
 ```
 
-**Importante - URLs según dispositivo:**
-- **Android Emulator**: `http://10.0.2.2:3000/api`
-- **iOS Simulator**: `http://localhost:3000/api`
-- **Dispositivo Físico**: `http://TU_IP_LOCAL:3000/api` (ej: `http://192.168.1.100:3000/api`)
+Notas sobre URLs según el dispositivo:
+- Android emulator (Android Studio): `http://10.0.2.2:3000/api`
+- iOS simulator: `http://localhost:3000/api`
+- Dispositivo físico: `http://<TU_IP_LOCAL>:3000/api` (ej: `http://192.168.1.100:3000/api`)
 
-> 📖 Ver [**ENV_GUIDE.md**](./ENV_GUIDE.md) para configuración detallada
-
-### 3. Iniciar la aplicación
+3. Iniciar el servidor de desarrollo
 
 ```bash
 npm start
 ```
 
-Luego escanea el código QR con Expo Go o presiona:
-- `a` para Android
-- `i` para iOS  
+Con el servidor corriendo puedes presionar:
+- `a` para abrir en Android
+- `i` para abrir en iOS
 - `w` para web
+o escanear el QR con Expo Go.
 
-## 📱 Características Implementadas
+## Scripts (package.json)
 
-- ✅ **Autenticación completa**: Login, registro con JWT
-- ✅ **Google OAuth**: Inicio de sesión con Google (ver [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md))
-- ✅ **Roles de usuario**: Administrador, Profesor y Alumno
-- ✅ **Gestión de clases**: Crear y unirse a clases
-- ✅ **UI/UX Mobile-first**: Componentes reutilizables con feedback visual
-- ✅ **Estado global**: Context API para autenticación
-- ✅ **Navegación**: Expo Router con protección de rutas
-- 🚧 **Tareas y entregas**: En desarrollo
-- 🚧 **Materiales**: En desarrollo
-
-## 📂 Estructura del Proyecto
-
-```
-classroom-front/
-├── app/                    # Rutas de la aplicación (Expo Router)
-│   ├── (tabs)/            # Tabs: Home y Perfil
-│   │   ├── index.tsx      # Lista de clases
-│   │   └── explore.tsx    # Perfil de usuario
-│   ├── auth/              # Login y registro
-│   ├── _layout.tsx        # Layout con AuthProvider
-│   └── index.tsx          # Redirección inicial
-├── components/ui/         # Componentes reutilizables
-│   ├── Button.tsx         # Botón personalizado
-│   ├── Input.tsx          # Input con validación
-│   ├── Card.tsx           # Tarjetas
-│   ├── Alert.tsx          # Alertas
-│   └── ClassCard.tsx      # Tarjeta de clase
-├── contexts/              # Context API
-│   └── AuthContext.tsx    # Estado de autenticación
-├── services/              # Servicios
-│   └── api.ts             # Cliente HTTP para API REST
-├── types/                 # TypeScript interfaces
-│   └── index.ts           # Tipos globales
-└── assets/                # Recursos estáticos
-```
-
-## 📖 Documentación Completa
-
-Lee la [**Guía del Frontend**](./FRONTEND_GUIDE.md) para información detallada sobre:
-
-- 🏗️ Arquitectura del proyecto
-- 🎨 Componentes UI disponibles
-- 🔌 Integración con el backend
-- 🎯 Buenas prácticas implementadas
-- 🚀 Próximos pasos para desarrollo
-
-## 🛠️ Scripts Disponibles
+El proyecto incluye los siguientes scripts (definidos en `package.json`):
 
 ```bash
-npm start          # Iniciar Expo dev server
-npm run android    # Ejecutar en emulador/dispositivo Android
-npm run ios        # Ejecutar en simulador iOS
-npm run web        # Ejecutar en navegador
-npm run lint       # Ejecutar ESLint
+npm start        # inicia expo dev server
+npm run android  # abre en Android
+npm run ios      # abre en iOS
+npm run web      # inicia en navegador
+npm run lint     # ejecuta ESLint
 ```
 
-## 🔐 Autenticación
+## Resumen de arquitectura
 
-La app maneja autenticación con JWT y OAuth:
+Rutas principales y carpetas relevantes:
 
-```typescript
-import { useAuth } from '@/contexts/AuthContext';
-
-function MyComponent() {
-  const { user, login, logout, loginWithGoogle, isAuthenticated } = useAuth();
-  
-  // Login con email/password
-  const result = await login({ email, password });
-  
-  // Login con Google OAuth
-  const googleResult = await loginWithGoogle(idToken);
-  
-  // Logout
-  await logout();
-}
+```
+app/                 # Rutas (Expo Router)
+components/ui/       # Componentes reutilizables (Button, Input, Card...)
+contexts/            # Providers / Context API (AuthContext)
+hooks/               # Custom hooks (useGitHubAuth, etc.)
+services/            # Cliente API y utilidades (services/api.ts)
+assets/              # Imágenes y recursos estáticos
+types/               # Tipos TypeScript globales
 ```
 
-### Google OAuth
+Observa `app/` para ver las rutas y layouts: la app usa Expo Router y páginas anidadas.
 
-Para configurar Google Sign-In, sigue la guía completa en [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md).
+## Funcionalidades principales
 
-```typescript
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+- Autenticación (email/password + Google OAuth)
+- Gestión de clases (crear, unirse, ver estudiantes)
+- Roles (admin, teacher, student) con UI condicional
+- Navegación protegida con Context API
 
-function LoginScreen() {
-  const { isReady, signInWithGoogle } = useGoogleAuth();
-  
-  const handleGoogleLogin = async () => {
-    const result = await signInWithGoogle();
-    if (result.type === 'success') {
-      // Enviar idToken al backend
-      await loginWithGoogle(result.idToken);
-    }
-  };
-}
-```
+Funcionalidades en progreso: tareas/entregas, sistema de calificaciones y notificaciones.
 
-### Verificar roles:
+## Integración con el backend
 
-```typescript
-import { useRole } from '@/contexts/AuthContext';
+Todas las llamadas al backend pasan por `services/api.ts`. Asegúrate de que la URL base en `.env` y en `services/api.ts` coincidan. Para pruebas locales desde un dispositivo físico, usa la IP de tu máquina.
 
-function MyComponent() {
-  const { isTeacher, isStudent, isAdmin } = useRole();
-  
-  return (
-    <>
-      {isTeacher && <CreateClassButton />}
-      {isStudent && <JoinClassButton />}
-    </>
-  );
-}
-```
+## Buenas prácticas y notas
 
-## 🔌 API Integration
+- Código en TypeScript
+- ESLint configurado (usa `npm run lint`)
+- Componentes UI en `components/ui` para reutilización
 
-Todas las peticiones al backend se hacen a través de `services/api.ts`:
+## Contribuir
 
-```typescript
-import apiService from '@/services/api';
+1. Fork
+2. Crear rama (`git checkout -b feature/mi-feature`)
+3. Commit y push
+4. Abrir PR y describir cambios
 
-// Obtener clases
-const response = await apiService.getClasses();
-if (response.success) {
-  console.log(response.data);
-}
+## Troubleshooting rápido
 
-// Crear clase (profesor)
-await apiService.createClass({ name, description });
+- Problemas con dependencias: elimina `node_modules` y reinstala
 
-// Unirse a clase (alumno)
-await apiService.joinClass(code);
-```
-
-## 🧹 Proyecto Limpio
-
-Este proyecto ha sido limpiado de archivos innecesarios:
-
-✅ Sin componentes de ejemplo de Expo  
-✅ Sin hooks personalizados no utilizados  
-✅ Sin scripts de reset  
-✅ Sin imágenes de React de ejemplo  
-✅ Solo 31 archivos esenciales
-
-**Total eliminado**: 23+ archivos y carpetas no utilizados
-
-## 🎨 Componentes UI
-
-### Button
-```tsx
-<Button
-  title="Guardar"
-  onPress={handleSave}
-  variant="primary"  // primary | secondary | outline | danger
-  loading={isLoading}
-  fullWidth
-/>
-```
-
-### Input
-```tsx
-<Input
-  label="Email"
-  value={email}
-  onChangeText={setEmail}
-  error={errors.email}
-  icon="mail-outline"
-  isPassword={false}
-/>
-```
-
-### Alert
-```tsx
-<Alert
-  type="success"  // success | error | warning | info
-  message="¡Operación exitosa!"
-  onClose={() => setAlert(null)}
-/>
-```
-
-## 🚀 Próximos Pasos
-
-Para completar el MVP:
-
-1. ✅ ~~Autenticación y gestión de usuarios~~
-2. ✅ ~~Home con lista de clases~~
-3. ✅ ~~Crear/unirse a clases~~
-4. 🚧 Detalle de clase con tabs (anuncios, materiales, tareas)
-5. 🚧 Crear y entregar tareas
-6. 🚧 Sistema de calificaciones
-7. �� Subida de archivos
-8. 🚧 Notificaciones push
-
-## 📱 Capturas (Próximamente)
-
-_Agrega capturas de pantalla aquí una vez que el diseño esté finalizado_
-
-## 🐛 Troubleshooting
-
-### Error de conexión al backend
-- ✅ Verifica que el backend esté corriendo
-- ✅ Revisa la URL en `services/api.ts`
-- ✅ En Android emulador usa `10.0.2.2` en vez de `localhost`
-- ✅ En dispositivo físico usa la IP local de tu PC
-
-### Problemas con dependencias
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 npx expo start --clear
 ```
 
-## 📄 Licencia
+- Si la app no se conecta al backend, revisa la URL en `.env` y usa `10.0.2.2` para emulador Android.
+
+## Licencia
 
 MIT
 
-## 👥 Contribuir
-
-¿Quieres contribuir? 
-1. Fork el proyecto
-2. Crea una rama (`git checkout -b feature/nueva-feature`)
-3. Commit tus cambios (`git commit -m 'Agregar nueva feature'`)
-4. Push (`git push origin feature/nueva-feature`)
-5. Abre un Pull Request
-
 ---
 
-**Desarrollado con ❤️ usando React Native + Expo**
+Si quieres que añada secciones (por ejemplo: capturas, un changelog, o una guía para contributors con PR template), dime qué prefieres y lo incorporo.
+
+**Hecho con ❤️ usando React Native + Expo**
